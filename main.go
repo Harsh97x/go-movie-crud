@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"math/rand"
+	"net/http"
 	"strconv"
+
 	"github.com/gorilla/mux"
 )
 
@@ -22,6 +24,15 @@ type Director struct {
 }
 
 var movies []Movie
+
+func getMovies(w http.ResponseWriter, r *http.Request) {
+	w.Header().set("ContentType", "application/json", "application/json")
+	json.NewEncoder(w).Encode(movies)
+}
+
+func deleteMovies(w http.ResponseWriter, r *http.Request) {
+
+}
 
 func main() {
 	r := mux.NewRouter()
