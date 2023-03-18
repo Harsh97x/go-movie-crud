@@ -3,12 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 type Movie struct {
@@ -31,13 +30,38 @@ func getMovies(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteMovies(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("ContecreateMoviesnt-Type", "application/json")
 	params := mux.Vars(r)
-	for index, item:= range movies {
-		if item.ID == params["ID"]{
+	for index, item := range movies {
+		if item.ID == params["ID"] {
 			movies = append(movies[:index], movies[index+1:]...)
+			break
 		}
 	}
+	json.NewEncoder(w).Encode(movies) // this will return the remaining movies
+}
+
+func getMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for _, item := range movies {
+		if item.ID == params["id"]{
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+}
+
+func createMovies(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	var movie movie
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+	
+
+}
+
+func updateMovies(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
 }
 
 func main() {
@@ -48,9 +72,8 @@ func main() {
 	r.HandleFunc("/movies", getMovies).Methods("GET")
 	r.HandleFunc("/movies{id}", getMovies).Methods("GET")
 	r.HandleFunc("/movies", createMovies).Methods("PUT")
-	r.Handlefunc("/movies{id}", updateMovies).Methods("POST")
+	r.HandleFunc("/movies{id}", updateMovies).Methods("POST")
 	r.HandleFunc("/movies{id}", deleteMovies).Methods("DELETE")
-
 	fmt.Printf("Server is starting at PORT 8000\n")
-	log.Fatal(http.ListenAndServe(":8000"))
+	log.Fatal(http.ListenAndServe(":8000", r))
 }
